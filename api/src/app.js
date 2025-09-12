@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import authRoutes from "../src/routes/auth.js";
-import notesRoutes from "../src/routes/notes.js";
-import tenantRoutes from "../src/routes/tenants.js";
+import authRoutes from "./routes/auth.js";
+import notesRoutes from "./routes/notes.js";
+import tenantRoutes from "./routes/tenants.js";
 
 export function createApp() {
   const app = express();
