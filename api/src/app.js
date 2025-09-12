@@ -10,7 +10,9 @@ export function createApp() {
   app.use(express.json());
   app.use(morgan("dev"));
 
-  const corsOrigins = (process.env.CORS_ORIGIN || "").split(",").filter(Boolean);
+  const corsOrigins = (process.env.CORS_ORIGIN || "")
+    .split(",")
+    .filter(Boolean);
   app.use(
     cors({
       origin: corsOrigins.length ? corsOrigins : true,
@@ -30,5 +32,3 @@ export function createApp() {
 }
 
 export default createApp;
-
-

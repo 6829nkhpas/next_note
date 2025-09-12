@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { getApiClient } from "../services/api";
 
-function api() {
-  const base = process.env.NEXT_PUBLIC_API_BASE;
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  return axios.create({ baseURL: base, headers });
-}
+const api = () => getApiClient();
 
 export default function Dashboard() {
   const [notes, setNotes] = useState([]);
@@ -159,7 +153,9 @@ export default function Dashboard() {
             <button onClick={loadUsers}>Refresh Users</button>
             <ul>
               {users.map((u) => (
-                <li key={u.id}>{u.email} — {u.role}</li>
+                <li key={u.id}>
+                  {u.email} — {u.role}
+                </li>
               ))}
             </ul>
           </div>
