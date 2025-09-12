@@ -1,5 +1,7 @@
 import express from "express";
+import bcrypt from "bcryptjs";
 import { Tenant } from "../models/Tenant.js";
+import { User } from "../models/User.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -17,5 +19,21 @@ router.post("/:slug/upgrade", requireAuth, requireRole("admin"), async (req, res
 });
 
 export default router;
+
+// Admin invite endpoint
+router.post("/:slug/invite", requireAuth, requireRole("admin"), async (req, res) => {
+  const { tenantId } = req.auth;
+  const { slug } = req.params;
+  const { email, role } = req.body || {};
+  if (!email || !role) return res.status(400).json({ error: "invalid_body" });
+  const tenant = await Tenant.findOne({ _id: tenantId, slug }).lean();
+  if (!tenant) return res.status(404).json({ error: "not_found" });
+  const existing = await User.findOne({ email }).lean();
+  if (existing) return res.status(409).json({ error: "user_exists" });
+  const passwordHash = await bcrypt.hash("password", 10);
+  const user = await User.create({ email, role, tenantId });
+  await User.updateOne({ _id: user._id }, { $set: { passwordHash } });
+  res.status(201).json({ id: String(user._id), email: user.email, role: user.role });
+});
 
 

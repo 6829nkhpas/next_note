@@ -14,11 +14,19 @@ export default function Dashboard() {
   const [content, setContent] = useState("");
   const [tenant, setTenant] = useState(null);
   const [error, setError] = useState(null);
+  const [role, setRole] = useState(null);
 
   async function fetchNotes() {
     const res = await api().get(`/notes`);
     setNotes(res.data.notes || []);
     setTenant(JSON.parse(localStorage.getItem("tenant")));
+    const t = JSON.parse(localStorage.getItem("tenant"));
+    const token = localStorage.getItem("token");
+    // decode role from JWT (naive, client-side only for UI)
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setRole(payload.role);
+    } catch {}
   }
 
   useEffect(() => {
@@ -60,7 +68,7 @@ export default function Dashboard() {
 
       {error && <p className="error">{error}</p>}
 
-      {tenant?.plan === "free" && notes.length >= 3 && (
+      {tenant?.plan === "free" && notes.length >= 3 && role === "admin" && (
         <div className="banner">
           <p>Free plan limit reached.</p>
           <button onClick={upgrade}>Upgrade to Pro</button>

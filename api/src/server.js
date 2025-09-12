@@ -1,37 +1,10 @@
-import express from "express";
 import dotenv from "dotenv";
-import cors from "cors";
-import morgan from "morgan";
 import { connectToDatabase } from "./utils/db.js";
-import authRoutes from "./routes/auth.js";
-import notesRoutes from "./routes/notes.js";
-import tenantRoutes from "./routes/tenants.js";
+import { createApp } from "./app.js";
 
 dotenv.config();
 
-const app = express();
-
-// Middleware
-app.use(express.json());
-app.use(morgan("dev"));
-
-const corsOrigins = (process.env.CORS_ORIGIN || "").split(",").filter(Boolean);
-app.use(
-  cors({
-    origin: corsOrigins.length ? corsOrigins : true,
-    credentials: true,
-  })
-);
-
-// Health
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
-
-// Routes
-app.use("/auth", authRoutes);
-app.use("/notes", notesRoutes);
-app.use("/tenants", tenantRoutes);
+const app = createApp();
 
 const port = process.env.PORT || 8000;
 
