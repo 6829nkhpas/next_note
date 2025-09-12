@@ -18,8 +18,6 @@ router.post("/:slug/upgrade", requireAuth, requireRole("admin"), async (req, res
   res.json({ id: String(tenant._id), slug: tenant.slug, name: tenant.name, plan: tenant.plan });
 });
 
-export default router;
-
 // Admin invite endpoint
 router.post("/:slug/invite", requireAuth, requireRole("admin"), async (req, res) => {
   const { tenantId } = req.auth;
@@ -44,5 +42,7 @@ router.get("/:slug/users", requireAuth, requireRole("admin"), async (req, res) =
   const users = await User.find({ tenantId }).select({ email: 1, role: 1 }).lean();
   res.json({ users: users.map(u => ({ id: String(u._id), email: u.email, role: u.role })) });
 });
+
+export default router;
 
 
