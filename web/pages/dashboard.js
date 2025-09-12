@@ -57,9 +57,20 @@ export default function Dashboard() {
     setTenant(res.data);
   }
 
+  function logout() {
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("tenant");
+    } catch {}
+    window.location.href = "/";
+  }
+
   return (
     <div className="container">
-      <h1>Notes</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h1>Notes</h1>
+        <button onClick={logout}>Logout</button>
+      </div>
       {tenant && (
         <p>
           Tenant: <b>{tenant.name}</b> — Plan: <b>{tenant.plan}</b>
