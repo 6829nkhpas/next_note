@@ -31,9 +31,18 @@ router.post("/:slug/invite", requireAuth, requireRole("admin"), async (req, res)
   const existing = await User.findOne({ email }).lean();
   if (existing) return res.status(409).json({ error: "user_exists" });
   const passwordHash = await bcrypt.hash("password", 10);
-  const user = await User.create({ email, role, tenantId });
-  await User.updateOne({ _id: user._id }, { $set: { passwordHash } });
+  const user = await User.create({ email, role, tenantId, passwordHash });
   res.status(201).json({ id: String(user._id), email: user.email, role: user.role });
+});
+
+// List users in tenant (admin only)
+router.get("/:slug/users", requireAuth, requireRole("admin"), async (req, res) => {
+  const { tenantId } = req.auth;
+  const { slug } = req.params;
+  const tenant = await Tenant.findOne({ _id: tenantId, slug }).lean();
+  if (!tenant) return res.status(404).json({ error: "not_found" });
+  const users = await User.find({ tenantId }).select({ email: 1, role: 1 }).lean();
+  res.json({ users: users.map(u => ({ id: String(u._id), email: u.email, role: u.role })) });
 });
 
 
