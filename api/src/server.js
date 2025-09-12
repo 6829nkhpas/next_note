@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
 import { connectToDatabase } from "./utils/db.js";
+import authRoutes from "./routes/auth.js";
+import notesRoutes from "./routes/notes.js";
+import tenantRoutes from "./routes/tenants.js";
 
 dotenv.config();
 
@@ -25,7 +28,10 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Routes to be added
+// Routes
+app.use("/auth", authRoutes);
+app.use("/notes", notesRoutes);
+app.use("/tenants", tenantRoutes);
 
 const port = process.env.PORT || 8000;
 
