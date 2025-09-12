@@ -31,6 +31,10 @@ export default function Dashboard() {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       setRole(payload.role);
+      if (payload.role === "admin") {
+        // load users list for admin
+        loadUsers();
+      }
     } catch {}
   }
 
