@@ -1,0 +1,57 @@
+import express from "express";
+import { Note } from "../models/Note.js";
+import { Tenant } from "../models/Tenant.js";
+import { requireAuth } from "../middleware/auth.js";
+
+const router = express.Router();
+
+router.use(requireAuth);
+
+router.get("/", async (req, res) => {
+  const { tenantId } = req.auth;
+  const notes = await Note.find({ tenantId }).sort({ created_at: -1 }).lean();
+  res.json({ notes: notes.map((n) => ({ ...n, id: String(n._id) })) });
+});
+
+router.post("/", async (req, res) => {
+  const { tenantId, sub } = req.auth;
+  const tenant = await Tenant.findById(tenantId).lean();
+  if (!tenant) return res.status(400).json({ error: "invalid_tenant" });
+  if (tenant.plan === "free") {
+    const count = await Note.countDocuments({ tenantId });
+    if (count >= 3) return res.status(403).json({ error: "free_limit_reached" });
+  }
+  const { title, content } = req.body || {};
+  const note = await Note.create({ tenantId, title: title || "", content: content || "", createdBy: sub });
+  res.status(201).json({ id: String(note._id) });
+});
+
+router.get("/:id", async (req, res) => {
+  const { tenantId } = req.auth;
+  const note = await Note.findOne({ _id: req.params.id, tenantId }).lean();
+  if (!note) return res.status(404).json({ error: "not_found" });
+  res.json({ ...note, id: String(note._id) });
+});
+
+router.put("/:id", async (req, res) => {
+  const { tenantId } = req.auth;
+  const { title, content } = req.body || {};
+  const updated = await Note.findOneAndUpdate(
+    { _id: req.params.id, tenantId },
+    { $set: { title, content } },
+    { new: true }
+  ).lean();
+  if (!updated) return res.status(404).json({ error: "not_found" });
+  res.json({ ...updated, id: String(updated._id) });
+});
+
+router.delete("/:id", async (req, res) => {
+  const { tenantId } = req.auth;
+  const result = await Note.deleteOne({ _id: req.params.id, tenantId });
+  if (!result.deletedCount) return res.status(404).json({ error: "not_found" });
+  res.status(204).end();
+});
+
+export default router;
+
+
