@@ -2,7 +2,11 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import { Tenant } from "../models/Tenant.js";
 import { User } from "../models/User.js";
-import { requireAuth, requireRole, requireTenantIsolation } from "../middleware/auth.js";
+import {
+  requireAuth,
+  requireRole,
+  requireTenantIsolation,
+} from "../middleware/auth.js";
 
 const router = express.Router();
 

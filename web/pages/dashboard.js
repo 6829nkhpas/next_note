@@ -112,7 +112,7 @@ export default function Dashboard() {
       setUsers(
         users.map((u) => (u.id === userId ? { ...u, plan: res.data.plan } : u))
       );
-      
+
       // If this is the current user, update their plan in localStorage
       const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
       if (currentUser.id === userId) {

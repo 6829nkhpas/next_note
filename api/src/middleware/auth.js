@@ -14,7 +14,8 @@ export function requireAuth(req, res, next) {
   if (!token) return res.status(401).json({ error: "unauthorized" });
   const payload = verifyJwt(token);
   if (!payload) return res.status(401).json({ error: "unauthorized" });
-  if (!payload.tenantId) return res.status(401).json({ error: "invalid_token" });
+  if (!payload.tenantId)
+    return res.status(401).json({ error: "invalid_token" });
   req.auth = payload; // { sub, role, tenantId }
   next();
 }
@@ -34,9 +35,8 @@ export function requireTenantIsolation(req, res, next) {
 export function requireRole(role) {
   return (req, res, next) => {
     if (!req.auth) return res.status(401).json({ error: "unauthorized" });
-    if (req.auth.role !== role) return res.status(403).json({ error: "forbidden" });
+    if (req.auth.role !== role)
+      return res.status(403).json({ error: "forbidden" });
     next();
   };
 }
-
-

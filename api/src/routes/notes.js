@@ -19,18 +19,24 @@ router.post("/", async (req, res) => {
   const { tenantId, sub } = req.auth;
   const tenant = await Tenant.findById(tenantId).lean();
   if (!tenant) return res.status(400).json({ error: "invalid_tenant" });
-  
+
   // Check user's individual plan, not tenant plan
   const user = await User.findById(sub).lean();
   if (!user) return res.status(400).json({ error: "invalid_user" });
-  
+
   if (user.plan === "free") {
     const count = await Note.countDocuments({ tenantId });
-    if (count >= 3) return res.status(403).json({ error: "free_limit_reached" });
+    if (count >= 3)
+      return res.status(403).json({ error: "free_limit_reached" });
   }
-  
+
   const { title, content } = req.body || {};
-  const note = await Note.create({ tenantId, title: title || "", content: content || "", createdBy: sub });
+  const note = await Note.create({
+    tenantId,
+    title: title || "",
+    content: content || "",
+    createdBy: sub,
+  });
   res.status(201).json({ id: String(note._id) });
 });
 
@@ -61,5 +67,3 @@ router.delete("/:id", async (req, res) => {
 });
 
 export default router;
-
-
