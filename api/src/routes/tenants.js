@@ -13,9 +13,11 @@ router.post(
   async (req, res) => {
     const { tenantId } = req.auth;
     const { slug } = req.params;
+    const { plan } = req.body || {};
+    const newPlan = plan === "free" ? "free" : "pro";
     const tenant = await Tenant.findOneAndUpdate(
       { _id: tenantId, slug },
-      { $set: { plan: "pro" } },
+      { $set: { plan: newPlan } },
       { new: true }
     ).lean();
     if (!tenant) return res.status(404).json({ error: "not_found" });

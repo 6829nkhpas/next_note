@@ -56,7 +56,8 @@ export default function Dashboard() {
 
   async function upgrade() {
     const t = JSON.parse(localStorage.getItem("tenant"));
-    const res = await api().post(`/tenants/${t.slug}/upgrade`);
+    const newPlan = t.plan === "free" ? "pro" : "free";
+    const res = await api().post(`/tenants/${t.slug}/upgrade`, { plan: newPlan });
     localStorage.setItem("tenant", JSON.stringify(res.data));
     setTenant(res.data);
   }
@@ -131,7 +132,9 @@ export default function Dashboard() {
         >
           <h3>Admin Panel</h3>
           <div style={{ marginBottom: 8 }}>
-            <button onClick={upgrade}>Upgrade to Pro</button>
+            <button onClick={upgrade}>
+              {tenant?.plan === "free" ? "Upgrade to Pro" : "Downgrade to Free"}
+            </button>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <input
