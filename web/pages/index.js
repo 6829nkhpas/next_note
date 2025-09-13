@@ -12,6 +12,7 @@ export default function Login() {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE}/auth/login`, { email, password });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("tenant", JSON.stringify(res.data.tenant));
+      localStorage.setItem("user", JSON.stringify(res.data.user));
       window.location.href = "/dashboard";
     } catch (err) {
       setError("Invalid credentials");

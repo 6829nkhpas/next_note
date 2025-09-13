@@ -22,12 +22,12 @@ export default function Dashboard() {
     setTenant(JSON.parse(localStorage.getItem("tenant")));
     const t = JSON.parse(localStorage.getItem("tenant"));
     const token = localStorage.getItem("token");
-    // decode role and plan from JWT (naive, client-side only for UI)
+    // Get user data from localStorage (more reliable than JWT parsing)
     try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setRole(payload.role);
-      setUserPlan(payload.plan || "free");
-      if (payload.role === "admin") {
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      setRole(userData.role);
+      setUserPlan(userData.plan || "free");
+      if (userData.role === "admin") {
         // load users list for admin
         loadUsers();
       }
@@ -112,6 +112,14 @@ export default function Dashboard() {
       setUsers(
         users.map((u) => (u.id === userId ? { ...u, plan: res.data.plan } : u))
       );
+      
+      // If this is the current user, update their plan in localStorage
+      const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+      if (currentUser.id === userId) {
+        const updatedUser = { ...currentUser, plan: res.data.plan };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setUserPlan(res.data.plan);
+      }
     } catch (e) {
       setError("Failed to toggle user plan");
     }
