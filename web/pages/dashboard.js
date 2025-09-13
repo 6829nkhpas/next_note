@@ -148,21 +148,17 @@ export default function Dashboard() {
 
   return (
     <div className="container">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h1>Notes</h1>
-        <button onClick={logout}>Logout</button>
+      <div className="header">
+        <h1>📝 Notes Dashboard</h1>
+        <button className="logout-btn" onClick={logout}>
+          🚪 Logout
+        </button>
       </div>
+      
       {tenant && (
-        <div style={{ marginBottom: "16px" }}>
+        <div className="profile-info">
           <p>
-            Tenant: <b>{tenant.name}</b> — Your Role: <b>{role}</b> — Your Plan:{" "}
-            <b>{userPlan}</b>
+            🏢 Tenant: <b>{tenant.name}</b> — 👤 Your Role: <b>{role}</b> — 💎 Your Plan: <b>{userPlan}</b>
           </p>
         </div>
       )}
@@ -172,20 +168,17 @@ export default function Dashboard() {
       {userPlan === "free" && notes.length >= 3 && (
         <div className="banner">
           <p>
-            Free plan limit reached. Contact your admin to upgrade your plan.
+            ⚠️ Free plan limit reached. Contact your admin to upgrade your plan.
           </p>
         </div>
       )}
 
       {role === "admin" && (
-        <div
-          className="admin-panel"
-          style={{ border: "1px solid #ddd", padding: 12, margin: "12px 0" }}
-        >
-          <h3>Admin Panel</h3>
-          <div style={{ display: "flex", gap: 8 }}>
+        <div className="admin-panel">
+          <h3>👑 Admin Panel</h3>
+          <div className="invite-form">
             <input
-              placeholder="Invite user email"
+              placeholder="📧 Invite user email"
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
             />
@@ -193,68 +186,41 @@ export default function Dashboard() {
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value)}
             >
-              <option value="member">Member</option>
-              <option value="admin">Admin</option>
+              <option value="member">👤 Member</option>
+              <option value="admin">👑 Admin</option>
             </select>
-            <button onClick={invite}>Invite</button>
+            <button className="invite-btn" onClick={invite}>
+              ➕ Invite
+            </button>
           </div>
-          {inviteMsg && <p>{inviteMsg}</p>}
-          <div style={{ marginTop: 8 }}>
-            <button onClick={loadUsers}>Refresh Users</button>
-            <ul>
+          {inviteMsg && <p className="invite-msg">{inviteMsg}</p>}
+          <div>
+            <button className="refresh-btn" onClick={loadUsers}>
+              🔄 Refresh Users
+            </button>
+            <ul className="users-list">
               {users.map((u) => (
-                <li
-                  key={u.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    margin: "4px 0",
-                  }}
-                >
-                  <span>
-                    {u.email} — {u.role} — Plan: {u.plan}
+                <li key={u.id} className="user-item">
+                  <span className="user-info">
+                    📧 {u.email} — 👤 {u.role} — 💎 Plan: {u.plan}
                   </span>
                   {u.role === "admin" ? (
-                    <span style={{ color: "#666", fontSize: "12px" }}>
-                      Admin (Always Pro)
+                    <span className="admin-badge">
+                      👑 Admin (Always Pro)
                     </span>
                   ) : (
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "8px",
-                        alignItems: "center",
-                      }}
-                    >
+                    <div className="user-actions">
                       <button
+                        className={`action-btn ${u.plan === "free" ? "upgrade-btn" : "downgrade-btn"}`}
                         onClick={() => toggleUserPlan(u.id)}
-                        style={{
-                          padding: "4px 8px",
-                          fontSize: "12px",
-                          backgroundColor:
-                            u.plan === "free" ? "#4CAF50" : "#f44336",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                        }}
                       >
-                        {u.plan === "free"
-                          ? "Upgrade to Pro"
-                          : "Downgrade to Free"}
+                        {u.plan === "free" ? "⬆️ Upgrade to Pro" : "⬇️ Downgrade to Free"}
                       </button>
                       <button
+                        className="action-btn delete-btn"
                         onClick={() => deleteUser(u.id, u.email)}
-                        style={{
-                          padding: "4px 8px",
-                          fontSize: "12px",
-                          backgroundColor: "#ff4444",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                        }}
                       >
-                        Delete
+                        🗑️ Delete
                       </button>
                     </div>
                   )}
@@ -266,25 +232,31 @@ export default function Dashboard() {
       )}
 
       <div className="new-note">
+        <h3>✨ Create New Note</h3>
         <input
-          placeholder="Title"
+          placeholder="📝 Note title..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
         <textarea
-          placeholder="Content"
+          placeholder="📄 Write your note content here..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          rows="4"
         />
-        <button onClick={addNote}>Add</button>
+        <button className="add-btn" onClick={addNote}>
+          ➕ Add Note
+        </button>
       </div>
 
-      <ul>
+      <ul className="notes-list">
         {notes.map((n) => (
-          <li key={n.id}>
-            <b>{n.title}</b>
-            <p>{n.content}</p>
-            <button onClick={() => removeNote(n.id)}>Delete</button>
+          <li key={n.id} className="note-item">
+            <div className="note-title">{n.title || "Untitled Note"}</div>
+            <div className="note-content">{n.content || "No content"}</div>
+            <button className="note-delete-btn" onClick={() => removeNote(n.id)}>
+              🗑️ Delete
+            </button>
           </li>
         ))}
       </ul>
