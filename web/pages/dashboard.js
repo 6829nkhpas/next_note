@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [tenant, setTenant] = useState(null);
   const [error, setError] = useState(null);
   const [role, setRole] = useState(null);
+  const [userPlan, setUserPlan] = useState(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
   const [inviteMsg, setInviteMsg] = useState("");
@@ -21,10 +22,11 @@ export default function Dashboard() {
     setTenant(JSON.parse(localStorage.getItem("tenant")));
     const t = JSON.parse(localStorage.getItem("tenant"));
     const token = localStorage.getItem("token");
-    // decode role from JWT (naive, client-side only for UI)
+    // decode role and plan from JWT (naive, client-side only for UI)
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       setRole(payload.role);
+      setUserPlan(payload.plan || "free");
       if (payload.role === "admin") {
         // load users list for admin
         loadUsers();
@@ -135,9 +137,11 @@ export default function Dashboard() {
 
       {error && <p className="error">{error}</p>}
 
-      {notes.length >= 3 && (
+      {userPlan === "free" && notes.length >= 3 && (
         <div className="banner">
-          <p>Free plan limit reached. Contact your admin to upgrade your plan.</p>
+          <p>
+            Free plan limit reached. Contact your admin to upgrade your plan.
+          </p>
         </div>
       )}
 
@@ -179,24 +183,28 @@ export default function Dashboard() {
                   <span>
                     {u.email} — {u.role} — Plan: {u.plan}
                   </span>
-                   {u.role === "admin" ? (
-                     <span style={{ color: "#666", fontSize: "12px" }}>Admin (Always Pro)</span>
-                   ) : (
-                     <button
-                       onClick={() => toggleUserPlan(u.id)}
-                       style={{
-                         padding: "4px 8px",
-                         fontSize: "12px",
-                         backgroundColor:
-                           u.plan === "free" ? "#4CAF50" : "#f44336",
-                         color: "white",
-                         border: "none",
-                         borderRadius: "4px",
-                       }}
-                     >
-                       {u.plan === "free" ? "Upgrade to Pro" : "Downgrade to Free"}
-                     </button>
-                   )}
+                  {u.role === "admin" ? (
+                    <span style={{ color: "#666", fontSize: "12px" }}>
+                      Admin (Always Pro)
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => toggleUserPlan(u.id)}
+                      style={{
+                        padding: "4px 8px",
+                        fontSize: "12px",
+                        backgroundColor:
+                          u.plan === "free" ? "#4CAF50" : "#f44336",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      {u.plan === "free"
+                        ? "Upgrade to Pro"
+                        : "Downgrade to Free"}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
