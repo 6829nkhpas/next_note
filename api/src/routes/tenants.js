@@ -150,7 +150,7 @@ router.delete(
     // Delete user and all their notes
     await Promise.all([
       User.deleteOne({ _id: userId, tenantId }),
-      Note.deleteMany({ createdBy: userId, tenantId })
+      Note.deleteMany({ createdBy: userId, tenantId }),
     ]);
 
     res.status(204).end();

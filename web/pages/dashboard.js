@@ -161,7 +161,8 @@ export default function Dashboard() {
       {tenant && (
         <div style={{ marginBottom: "16px" }}>
           <p>
-            Tenant: <b>{tenant.name}</b> — Your Role: <b>{role}</b> — Your Plan: <b>{userPlan}</b>
+            Tenant: <b>{tenant.name}</b> — Your Role: <b>{role}</b> — Your Plan:{" "}
+            <b>{userPlan}</b>
           </p>
         </div>
       )}
