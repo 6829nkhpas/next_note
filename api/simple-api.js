@@ -232,4 +232,47 @@ app.post('/notes', async (req, res) => {
   }
 });
 
+// Delete note route
+app.delete('/notes/:id', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Authorization header required' });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    await connectToDatabase();
+    
+    if (!Note) {
+      Note = mongoose.model('Note', NoteSchema);
+    }
+
+    const noteId = req.params.id;
+    
+    // Find and delete the note, ensuring it belongs to the user and tenant
+    const deletedNote = await Note.findOneAndDelete({ 
+      _id: noteId,
+      tenantId: decoded.tenantId,
+      created_by: decoded.userId 
+    });
+
+    if (!deletedNote) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
+
+    res.status(200).json({ message: 'Note deleted successfully' });
+  } catch (error) {
+    console.error('Note deletion error:', error);
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: 'Invalid note ID' });
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default app;

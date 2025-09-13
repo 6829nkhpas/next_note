@@ -18,7 +18,8 @@ export default function Dashboard() {
 
   async function fetchNotes() {
     const res = await api().get(`/notes`);
-    setNotes(res.data.notes || []);
+    // Handle both wrapped ({ notes: [...] }) and direct array responses
+    setNotes(res.data.notes || res.data || []);
     setTenant(JSON.parse(localStorage.getItem("tenant")));
     const t = JSON.parse(localStorage.getItem("tenant"));
     const token = localStorage.getItem("token");
@@ -254,12 +255,12 @@ export default function Dashboard() {
 
       <ul className="notes-list">
         {notes.map((n) => (
-          <li key={n.id} className="note-item">
+          <li key={n.id || n._id} className="note-item">
             <div className="note-title">{n.title || "Untitled Note"}</div>
             <div className="note-content">{n.content || "No content"}</div>
             <button
               className="note-delete-btn"
-              onClick={() => removeNote(n.id)}
+              onClick={() => removeNote(n.id || n._id)}
             >
               🗑️ Delete
             </button>
