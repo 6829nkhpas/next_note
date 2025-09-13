@@ -63,14 +63,45 @@ router.get(
     const tenant = await Tenant.findOne({ _id: tenantId, slug }).lean();
     if (!tenant) return res.status(404).json({ error: "not_found" });
     const users = await User.find({ tenantId })
-      .select({ email: 1, role: 1 })
+      .select({ email: 1, role: 1, plan: 1 })
       .lean();
     res.json({
       users: users.map((u) => ({
         id: String(u._id),
         email: u.email,
         role: u.role,
+        plan: u.plan || "free",
       })),
+    });
+  }
+);
+
+// Toggle user plan (admin only)
+router.post(
+  "/:slug/users/:userId/toggle-plan",
+  requireAuth,
+  requireRole("admin"),
+  async (req, res) => {
+    const { tenantId } = req.auth;
+    const { slug, userId } = req.params;
+    const tenant = await Tenant.findOne({ _id: tenantId, slug }).lean();
+    if (!tenant) return res.status(404).json({ error: "not_found" });
+    
+    const user = await User.findOne({ _id: userId, tenantId }).lean();
+    if (!user) return res.status(404).json({ error: "user_not_found" });
+    
+    const newPlan = user.plan === "free" ? "pro" : "free";
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId, tenantId },
+      { $set: { plan: newPlan } },
+      { new: true }
+    ).select({ email: 1, role: 1, plan: 1 }).lean();
+    
+    res.json({
+      id: String(updatedUser._id),
+      email: updatedUser.email,
+      role: updatedUser.role,
+      plan: updatedUser.plan,
     });
   }
 );

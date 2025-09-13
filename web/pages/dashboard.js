@@ -57,7 +57,9 @@ export default function Dashboard() {
   async function upgrade() {
     const t = JSON.parse(localStorage.getItem("tenant"));
     const newPlan = t.plan === "free" ? "pro" : "free";
-    const res = await api().post(`/tenants/${t.slug}/upgrade`, { plan: newPlan });
+    const res = await api().post(`/tenants/${t.slug}/upgrade`, {
+      plan: newPlan,
+    });
     localStorage.setItem("tenant", JSON.stringify(res.data));
     setTenant(res.data);
   }
@@ -96,6 +98,17 @@ export default function Dashboard() {
       const res = await api().get(`/tenants/${t.slug}/users`);
       setUsers(res.data.users || []);
     } catch {}
+  }
+
+  async function toggleUserPlan(userId) {
+    try {
+      const t = JSON.parse(localStorage.getItem("tenant"));
+      const res = await api().post(`/tenants/${t.slug}/users/${userId}/toggle-plan`);
+      // Update the user in the local state
+      setUsers(users.map(u => u.id === userId ? { ...u, plan: res.data.plan } : u));
+    } catch (e) {
+      setError("Failed to toggle user plan");
+    }
   }
 
   return (
@@ -156,8 +169,21 @@ export default function Dashboard() {
             <button onClick={loadUsers}>Refresh Users</button>
             <ul>
               {users.map((u) => (
-                <li key={u.id}>
-                  {u.email} — {u.role}
+                <li key={u.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "4px 0" }}>
+                  <span>{u.email} — {u.role} — Plan: {u.plan}</span>
+                  <button 
+                    onClick={() => toggleUserPlan(u.id)}
+                    style={{ 
+                      padding: "4px 8px", 
+                      fontSize: "12px",
+                      backgroundColor: u.plan === "free" ? "#4CAF50" : "#f44336",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px"
+                    }}
+                  >
+                    {u.plan === "free" ? "Upgrade to Pro" : "Downgrade to Free"}
+                  </button>
                 </li>
               ))}
             </ul>
