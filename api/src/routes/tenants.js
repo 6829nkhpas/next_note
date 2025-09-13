@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import { Tenant } from "../models/Tenant.js";
 import { User } from "../models/User.js";
+import { Note } from "../models/Note.js";
 import {
   requireAuth,
   requireRole,
@@ -118,6 +119,41 @@ router.post(
       role: updatedUser.role,
       plan: updatedUser.plan,
     });
+  }
+);
+
+// Delete user (admin only) - but not other admins
+router.delete(
+  "/:slug/users/:userId",
+  requireAuth,
+  requireTenantIsolation,
+  requireRole("admin"),
+  async (req, res) => {
+    const { tenantId, sub } = req.auth;
+    const { slug, userId } = req.params;
+    const tenant = await Tenant.findOne({ _id: tenantId, slug }).lean();
+    if (!tenant) return res.status(404).json({ error: "not_found" });
+
+    const user = await User.findOne({ _id: userId, tenantId }).lean();
+    if (!user) return res.status(404).json({ error: "user_not_found" });
+
+    // Don't allow deleting other admins
+    if (user.role === "admin") {
+      return res.status(400).json({ error: "cannot_delete_admin" });
+    }
+
+    // Don't allow deleting yourself
+    if (String(user._id) === String(sub)) {
+      return res.status(400).json({ error: "cannot_delete_self" });
+    }
+
+    // Delete user and all their notes
+    await Promise.all([
+      User.deleteOne({ _id: userId, tenantId }),
+      Note.deleteMany({ createdBy: userId, tenantId })
+    ]);
+
+    res.status(204).end();
   }
 );
 

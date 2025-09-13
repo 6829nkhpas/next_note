@@ -125,6 +125,23 @@ export default function Dashboard() {
     }
   }
 
+  async function deleteUser(userId, userEmail) {
+    if (!confirm(`Are you sure you want to delete user "${userEmail}"? This will also delete all their notes.`)) {
+      return;
+    }
+    
+    try {
+      const t = JSON.parse(localStorage.getItem("tenant"));
+      await api().delete(`/tenants/${t.slug}/users/${userId}`);
+      // Remove user from local state
+      setUsers(users.filter(u => u.id !== userId));
+      setError(""); // Clear any previous errors
+    } catch (e) {
+      const reason = e.response?.data?.error || "failed";
+      setError(`Delete ${reason}`);
+    }
+  }
+
   return (
     <div className="container">
       <div
@@ -196,22 +213,37 @@ export default function Dashboard() {
                       Admin (Always Pro)
                     </span>
                   ) : (
-                    <button
-                      onClick={() => toggleUserPlan(u.id)}
-                      style={{
-                        padding: "4px 8px",
-                        fontSize: "12px",
-                        backgroundColor:
-                          u.plan === "free" ? "#4CAF50" : "#f44336",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      {u.plan === "free"
-                        ? "Upgrade to Pro"
-                        : "Downgrade to Free"}
-                    </button>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <button
+                        onClick={() => toggleUserPlan(u.id)}
+                        style={{
+                          padding: "4px 8px",
+                          fontSize: "12px",
+                          backgroundColor:
+                            u.plan === "free" ? "#4CAF50" : "#f44336",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        {u.plan === "free"
+                          ? "Upgrade to Pro"
+                          : "Downgrade to Free"}
+                      </button>
+                      <button
+                        onClick={() => deleteUser(u.id, u.email)}
+                        style={{
+                          padding: "4px 8px",
+                          fontSize: "12px",
+                          backgroundColor: "#ff4444",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   )}
                 </li>
               ))}
