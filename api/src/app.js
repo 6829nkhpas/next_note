@@ -20,8 +20,37 @@ export function createApp() {
     })
   );
 
+  // Simple health check - no database required
   app.get("/health", (req, res) => {
-    res.json({ status: "ok" });
+    res.json({ 
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      version: '1.0.0'
+    });
+  });
+
+  // Test endpoint to verify serverless function is working
+  app.get("/test", (req, res) => {
+    res.json({ 
+      message: "API is working!",
+      timestamp: new Date().toISOString(),
+      env: {
+        hasMongoUri: !!process.env.MONGODB_URI,
+        hasJwtSecret: !!process.env.JWT_SECRET,
+        corsOrigin: process.env.CORS_ORIGIN || 'not set'
+      }
+    });
+  });
+
+  // Root endpoint
+  app.get("/", (req, res) => {
+    res.json({ 
+      message: "Notes API Server",
+      version: "1.0.0",
+      endpoints: ["/health", "/test", "/auth/login", "/notes"],
+      timestamp: new Date().toISOString()
+    });
   });
 
   app.use("/auth", authRoutes);

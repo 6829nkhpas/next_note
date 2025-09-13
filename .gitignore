@@ -28,3 +28,4 @@ web/out/
 *.swp
 .idea/
 .vscode/
+.vercel
