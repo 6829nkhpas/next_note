@@ -154,11 +154,12 @@ export default function Dashboard() {
           🚪 Logout
         </button>
       </div>
-      
+
       {tenant && (
         <div className="profile-info">
           <p>
-            🏢 Tenant: <b>{tenant.name}</b> — 👤 Your Role: <b>{role}</b> — 💎 Your Plan: <b>{userPlan}</b>
+            🏢 Tenant: <b>{tenant.name}</b> — 👤 Your Role: <b>{role}</b> — 💎
+            Your Plan: <b>{userPlan}</b>
           </p>
         </div>
       )}
@@ -205,16 +206,18 @@ export default function Dashboard() {
                     📧 {u.email} — 👤 {u.role} — 💎 Plan: {u.plan}
                   </span>
                   {u.role === "admin" ? (
-                    <span className="admin-badge">
-                      👑 Admin (Always Pro)
-                    </span>
+                    <span className="admin-badge">👑 Admin (Always Pro)</span>
                   ) : (
                     <div className="user-actions">
                       <button
-                        className={`action-btn ${u.plan === "free" ? "upgrade-btn" : "downgrade-btn"}`}
+                        className={`action-btn ${
+                          u.plan === "free" ? "upgrade-btn" : "downgrade-btn"
+                        }`}
                         onClick={() => toggleUserPlan(u.id)}
                       >
-                        {u.plan === "free" ? "⬆️ Upgrade to Pro" : "⬇️ Downgrade to Free"}
+                        {u.plan === "free"
+                          ? "⬆️ Upgrade to Pro"
+                          : "⬇️ Downgrade to Free"}
                       </button>
                       <button
                         className="action-btn delete-btn"
@@ -254,7 +257,10 @@ export default function Dashboard() {
           <li key={n.id} className="note-item">
             <div className="note-title">{n.title || "Untitled Note"}</div>
             <div className="note-content">{n.content || "No content"}</div>
-            <button className="note-delete-btn" onClick={() => removeNote(n.id)}>
+            <button
+              className="note-delete-btn"
+              onClick={() => removeNote(n.id)}
+            >
               🗑️ Delete
             </button>
           </li>
