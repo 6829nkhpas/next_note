@@ -2,13 +2,15 @@
 
 ## Vercel Deployment Steps
 
-### 1. Backend API Deployment
+### Option 1: Deploy as Separate Projects (Recommended)
+
+#### 1. Backend API Deployment
 
 ```bash
 # Navigate to API directory
 cd api
 
-# Deploy to Vercel
+# Deploy to Vercel (this will create a new project)
 vercel --prod
 
 # Set environment variables in Vercel dashboard:
@@ -19,17 +21,29 @@ vercel --prod
 # CORS_ORIGIN=https://your-frontend.vercel.app
 ```
 
-### 2. Frontend Deployment
+#### 2. Frontend Deployment
 
 ```bash
 # Navigate to web directory
 cd web
 
-# Deploy to Vercel
+# Deploy to Vercel (this will create a separate project)
 vercel --prod
 
 # Set environment variables in Vercel dashboard:
 # NEXT_PUBLIC_API_BASE=https://your-api.vercel.app
+```
+
+### Option 2: Deploy as Monorepo (Alternative)
+
+If you prefer to deploy as a single project:
+
+```bash
+# From the root directory
+vercel --prod
+
+# This will deploy both frontend and backend together
+# Make sure to set all environment variables in the Vercel dashboard
 ```
 
 ### 3. Update CORS Settings
