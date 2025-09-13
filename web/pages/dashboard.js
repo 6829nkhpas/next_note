@@ -103,9 +103,13 @@ export default function Dashboard() {
   async function toggleUserPlan(userId) {
     try {
       const t = JSON.parse(localStorage.getItem("tenant"));
-      const res = await api().post(`/tenants/${t.slug}/users/${userId}/toggle-plan`);
+      const res = await api().post(
+        `/tenants/${t.slug}/users/${userId}/toggle-plan`
+      );
       // Update the user in the local state
-      setUsers(users.map(u => u.id === userId ? { ...u, plan: res.data.plan } : u));
+      setUsers(
+        users.map((u) => (u.id === userId ? { ...u, plan: res.data.plan } : u))
+      );
     } catch (e) {
       setError("Failed to toggle user plan");
     }
@@ -131,10 +135,9 @@ export default function Dashboard() {
 
       {error && <p className="error">{error}</p>}
 
-      {tenant?.plan === "free" && notes.length >= 3 && role === "admin" && (
+      {notes.length >= 3 && (
         <div className="banner">
-          <p>Free plan limit reached.</p>
-          <button onClick={upgrade}>Upgrade to Pro</button>
+          <p>Free plan limit reached. Contact your admin to upgrade your plan.</p>
         </div>
       )}
 
@@ -144,11 +147,6 @@ export default function Dashboard() {
           style={{ border: "1px solid #ddd", padding: 12, margin: "12px 0" }}
         >
           <h3>Admin Panel</h3>
-          <div style={{ marginBottom: 8 }}>
-            <button onClick={upgrade}>
-              {tenant?.plan === "free" ? "Upgrade to Pro" : "Downgrade to Free"}
-            </button>
-          </div>
           <div style={{ display: "flex", gap: 8 }}>
             <input
               placeholder="Invite user email"
@@ -169,21 +167,36 @@ export default function Dashboard() {
             <button onClick={loadUsers}>Refresh Users</button>
             <ul>
               {users.map((u) => (
-                <li key={u.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "4px 0" }}>
-                  <span>{u.email} — {u.role} — Plan: {u.plan}</span>
-                  <button 
-                    onClick={() => toggleUserPlan(u.id)}
-                    style={{ 
-                      padding: "4px 8px", 
-                      fontSize: "12px",
-                      backgroundColor: u.plan === "free" ? "#4CAF50" : "#f44336",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px"
-                    }}
-                  >
-                    {u.plan === "free" ? "Upgrade to Pro" : "Downgrade to Free"}
-                  </button>
+                <li
+                  key={u.id}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    margin: "4px 0",
+                  }}
+                >
+                  <span>
+                    {u.email} — {u.role} — Plan: {u.plan}
+                  </span>
+                   {u.role === "admin" ? (
+                     <span style={{ color: "#666", fontSize: "12px" }}>Admin (Always Pro)</span>
+                   ) : (
+                     <button
+                       onClick={() => toggleUserPlan(u.id)}
+                       style={{
+                         padding: "4px 8px",
+                         fontSize: "12px",
+                         backgroundColor:
+                           u.plan === "free" ? "#4CAF50" : "#f44336",
+                         color: "white",
+                         border: "none",
+                         borderRadius: "4px",
+                       }}
+                     >
+                       {u.plan === "free" ? "Upgrade to Pro" : "Downgrade to Free"}
+                     </button>
+                   )}
                 </li>
               ))}
             </ul>

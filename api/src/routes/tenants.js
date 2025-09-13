@@ -86,17 +86,24 @@ router.post(
     const { slug, userId } = req.params;
     const tenant = await Tenant.findOne({ _id: tenantId, slug }).lean();
     if (!tenant) return res.status(404).json({ error: "not_found" });
-    
+
     const user = await User.findOne({ _id: userId, tenantId }).lean();
     if (!user) return res.status(404).json({ error: "user_not_found" });
-    
+
+    // Don't allow changing admin plans - admins are always pro
+    if (user.role === "admin") {
+      return res.status(400).json({ error: "cannot_change_admin_plan" });
+    }
+
     const newPlan = user.plan === "free" ? "pro" : "free";
     const updatedUser = await User.findOneAndUpdate(
       { _id: userId, tenantId },
       { $set: { plan: newPlan } },
       { new: true }
-    ).select({ email: 1, role: 1, plan: 1 }).lean();
-    
+    )
+      .select({ email: 1, role: 1, plan: 1 })
+      .lean();
+
     res.json({
       id: String(updatedUser._id),
       email: updatedUser.email,

@@ -1,6 +1,7 @@
 import express from "express";
 import { Note } from "../models/Note.js";
 import { Tenant } from "../models/Tenant.js";
+import { User } from "../models/User.js";
 import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -17,10 +18,16 @@ router.post("/", async (req, res) => {
   const { tenantId, sub } = req.auth;
   const tenant = await Tenant.findById(tenantId).lean();
   if (!tenant) return res.status(400).json({ error: "invalid_tenant" });
-  if (tenant.plan === "free") {
+  
+  // Check user's individual plan, not tenant plan
+  const user = await User.findById(sub).lean();
+  if (!user) return res.status(400).json({ error: "invalid_user" });
+  
+  if (user.plan === "free") {
     const count = await Note.countDocuments({ tenantId });
     if (count >= 3) return res.status(403).json({ error: "free_limit_reached" });
   }
+  
   const { title, content } = req.body || {};
   const note = await Note.create({ tenantId, title: title || "", content: content || "", createdBy: sub });
   res.status(201).json({ id: String(note._id) });
