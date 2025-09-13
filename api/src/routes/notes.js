@@ -2,11 +2,12 @@ import express from "express";
 import { Note } from "../models/Note.js";
 import { Tenant } from "../models/Tenant.js";
 import { User } from "../models/User.js";
-import { requireAuth } from "../middleware/auth.js";
+import { requireAuth, requireTenantIsolation } from "../middleware/auth.js";
 
 const router = express.Router();
 
 router.use(requireAuth);
+router.use(requireTenantIsolation);
 
 router.get("/", async (req, res) => {
   const { tenantId } = req.auth;

@@ -2,13 +2,14 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import { Tenant } from "../models/Tenant.js";
 import { User } from "../models/User.js";
-import { requireAuth, requireRole } from "../middleware/auth.js";
+import { requireAuth, requireRole, requireTenantIsolation } from "../middleware/auth.js";
 
 const router = express.Router();
 
 router.post(
   "/:slug/upgrade",
   requireAuth,
+  requireTenantIsolation,
   requireRole("admin"),
   async (req, res) => {
     const { tenantId } = req.auth;
@@ -34,6 +35,7 @@ router.post(
 router.post(
   "/:slug/invite",
   requireAuth,
+  requireTenantIsolation,
   requireRole("admin"),
   async (req, res) => {
     const { tenantId } = req.auth;
@@ -56,6 +58,7 @@ router.post(
 router.get(
   "/:slug/users",
   requireAuth,
+  requireTenantIsolation,
   requireRole("admin"),
   async (req, res) => {
     const { tenantId } = req.auth;
@@ -80,6 +83,7 @@ router.get(
 router.post(
   "/:slug/users/:userId/toggle-plan",
   requireAuth,
+  requireTenantIsolation,
   requireRole("admin"),
   async (req, res) => {
     const { tenantId } = req.auth;

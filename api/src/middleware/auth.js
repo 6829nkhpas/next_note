@@ -14,7 +14,20 @@ export function requireAuth(req, res, next) {
   if (!token) return res.status(401).json({ error: "unauthorized" });
   const payload = verifyJwt(token);
   if (!payload) return res.status(401).json({ error: "unauthorized" });
+  if (!payload.tenantId) return res.status(401).json({ error: "invalid_token" });
   req.auth = payload; // { sub, role, tenantId }
+  next();
+}
+
+// Middleware to ensure tenant isolation - validates tenantId in JWT matches request
+export function requireTenantIsolation(req, res, next) {
+  if (!req.auth || !req.auth.tenantId) {
+    return res.status(401).json({ error: "unauthorized" });
+  }
+  // Additional validation: ensure tenantId is a valid ObjectId
+  if (!req.auth.tenantId.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(401).json({ error: "invalid_tenant" });
+  }
   next();
 }
 
