@@ -155,9 +155,14 @@ export default function Dashboard() {
         <button onClick={logout}>Logout</button>
       </div>
       {tenant && (
-        <p>
-          Tenant: <b>{tenant.name}</b> — Plan: <b>{tenant.plan}</b>
-        </p>
+        <div style={{ marginBottom: "16px" }}>
+          <p>
+            Tenant: <b>{tenant.name}</b> — Plan: <b>{tenant.plan}</b>
+          </p>
+          <p>
+            Your Profile: <b>{role}</b> — Your Plan: <b>{userPlan}</b>
+          </p>
+        </div>
       )}
 
       {error && <p className="error">{error}</p>}
