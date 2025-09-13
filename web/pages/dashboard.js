@@ -126,15 +126,19 @@ export default function Dashboard() {
   }
 
   async function deleteUser(userId, userEmail) {
-    if (!confirm(`Are you sure you want to delete user "${userEmail}"? This will also delete all their notes.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete user "${userEmail}"? This will also delete all their notes.`
+      )
+    ) {
       return;
     }
-    
+
     try {
       const t = JSON.parse(localStorage.getItem("tenant"));
       await api().delete(`/tenants/${t.slug}/users/${userId}`);
       // Remove user from local state
-      setUsers(users.filter(u => u.id !== userId));
+      setUsers(users.filter((u) => u.id !== userId));
       setError(""); // Clear any previous errors
     } catch (e) {
       const reason = e.response?.data?.error || "failed";
@@ -157,10 +161,7 @@ export default function Dashboard() {
       {tenant && (
         <div style={{ marginBottom: "16px" }}>
           <p>
-            Tenant: <b>{tenant.name}</b> — Plan: <b>{tenant.plan}</b>
-          </p>
-          <p>
-            Your Profile: <b>{role}</b> — Your Plan: <b>{userPlan}</b>
+            Tenant: <b>{tenant.name}</b> — Your Role: <b>{role}</b> — Your Plan: <b>{userPlan}</b>
           </p>
         </div>
       )}
@@ -218,7 +219,13 @@ export default function Dashboard() {
                       Admin (Always Pro)
                     </span>
                   ) : (
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        alignItems: "center",
+                      }}
+                    >
                       <button
                         onClick={() => toggleUserPlan(u.id)}
                         style={{
