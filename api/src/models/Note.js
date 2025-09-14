@@ -10,6 +10,9 @@ const noteSchema = new mongoose.Schema(
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
 );
 
+// Add compound index for efficient queries by tenant and user
+noteSchema.index({ tenantId: 1, createdBy: 1 });
+
 export const Note = mongoose.models.Note || mongoose.model("Note", noteSchema);
 
 
