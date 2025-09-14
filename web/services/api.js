@@ -6,11 +6,11 @@ export function getApiClient() {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  
-  const client = axios.create({ 
-    baseURL: base, 
+
+  const client = axios.create({
+    baseURL: base,
     headers,
-    timeout: 10000 // 10 second timeout
+    timeout: 10000, // 10 second timeout
   });
 
   // Add response interceptor to handle authentication errors

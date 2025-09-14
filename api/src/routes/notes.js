@@ -12,7 +12,9 @@ router.use(requireTenantIsolation);
 router.get("/", async (req, res) => {
   const { tenantId, sub } = req.auth;
   // Only get notes created by the current user
-  const notes = await Note.find({ tenantId, createdBy: sub }).sort({ created_at: -1 }).lean();
+  const notes = await Note.find({ tenantId, createdBy: sub })
+    .sort({ created_at: -1 })
+    .lean();
   res.json({ notes: notes.map((n) => ({ ...n, id: String(n._id) })) });
 });
 
@@ -45,7 +47,11 @@ router.post("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const { tenantId, sub } = req.auth;
   // Only allow access to notes created by the current user
-  const note = await Note.findOne({ _id: req.params.id, tenantId, createdBy: sub }).lean();
+  const note = await Note.findOne({
+    _id: req.params.id,
+    tenantId,
+    createdBy: sub,
+  }).lean();
   if (!note) return res.status(404).json({ error: "not_found" });
   res.json({ ...note, id: String(note._id) });
 });
@@ -66,7 +72,11 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { tenantId, sub } = req.auth;
   // Only allow deleting notes created by the current user
-  const result = await Note.deleteOne({ _id: req.params.id, tenantId, createdBy: sub });
+  const result = await Note.deleteOne({
+    _id: req.params.id,
+    tenantId,
+    createdBy: sub,
+  });
   if (!result.deletedCount) return res.status(404).json({ error: "not_found" });
   res.status(204).end();
 });
